@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Honda Catalogador Pro</title>
+    <title>Honda Catalogador Pro | Gemini 3.1</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script type="importmap">
       { "imports": { "@google/generative-ai": "https://esm.run/@google/generative-ai" } }
@@ -15,13 +15,13 @@
         
         <div class="bg-red-600 text-white p-6">
             <h1 class="text-2xl font-bold uppercase italic">Honda Catalogador Pro</h1>
-            <p class="text-xs opacity-90">Versión de Bajo Consumo - Optimizada</p>
+            <p class="text-xs opacity-90 font-bold tracking-widest uppercase">Motor Actualizado: Gemini 3.1 Flash</p>
         </div>
 
         <div class="p-6 space-y-6">
             
             <div class="bg-gray-50 p-4 rounded border border-gray-200">
-                <label class="block text-xs font-bold text-gray-500 mb-2 uppercase">1. Tu API Key (Se guarda sola):</label>
+                <label class="block text-xs font-bold text-gray-500 mb-2 uppercase">1. Tu API Key Nueva:</label>
                 <input type="password" id="apiKey" placeholder="AIzaSy..." class="w-full p-2 border rounded focus:border-red-500 outline-none text-sm font-mono">
             </div>
 
@@ -29,7 +29,7 @@
                 <label class="block text-xs font-bold text-gray-500 mb-2 uppercase">2. Código Original Honda (Base 9 dígitos o completo):</label>
                 <div class="flex flex-col sm:flex-row gap-2">
                     <input type="text" id="partInput" placeholder="Ej: 51490-MN8" class="flex-1 p-3 border-2 border-gray-300 rounded text-xl font-bold uppercase focus:border-red-500 outline-none">
-                    <button id="mainBtn" onclick="procesar()" class="bg-red-600 text-white px-8 py-3 rounded font-bold uppercase hover:bg-red-700 transition disabled:bg-gray-400">
+                    <button id="mainBtn" onclick="procesar()" class="bg-red-600 text-white px-8 py-3 rounded font-bold uppercase hover:bg-red-700 transition disabled:bg-gray-400 shadow-md">
                         Generar
                     </button>
                 </div>
@@ -39,9 +39,9 @@
 
             <div id="resultBox" class="hidden">
                 <label class="block text-xs font-bold text-gray-500 mb-2 uppercase">Descripción para Mercado Libre:</label>
-                <textarea id="output" rows="14" class="w-full p-4 bg-gray-50 border rounded font-mono text-sm outline-none"></textarea>
-                <button onclick="copiar()" class="mt-2 w-full bg-gray-900 text-white py-3 rounded font-bold uppercase hover:bg-black transition">
-                    Copiar Texto
+                <textarea id="output" rows="14" class="w-full p-4 bg-gray-50 border rounded font-mono text-sm outline-none shadow-inner"></textarea>
+                <button onclick="copiar()" class="mt-2 w-full bg-gray-900 text-white py-4 rounded font-bold uppercase hover:bg-black transition shadow-lg">
+                    📋 Copiar Texto
                 </button>
             </div>
         </div>
@@ -50,38 +50,35 @@
     <script type="module">
         import { GoogleGenerativeAI } from "@google/generative-ai";
 
-        // Cargar llave guardada
-        document.getElementById('apiKey').value = localStorage.getItem('honda_key_final') || '';
+        document.getElementById('apiKey').value = localStorage.getItem('honda_key_31') || '';
 
         window.procesar = async () => {
             const key = document.getElementById('apiKey').value.trim();
             const part = document.getElementById('partInput').value.trim();
             
-            if(!key) return alert("Por favor, ingresá tu API Key.");
+            if(!key) return alert("Por favor, ingresá tu API Key nueva.");
             if(part.length < 5) return alert("El código es muy corto.");
 
-            // Guardar llave automáticamente
-            localStorage.setItem('honda_key_final', key);
+            localStorage.setItem('honda_key_31', key);
 
             const btn = document.getElementById('mainBtn');
             const status = document.getElementById('statusBox');
             const result = document.getElementById('resultBox');
             const output = document.getElementById('output');
 
-            // Preparar Interfaz
             btn.disabled = true;
-            btn.innerText = "Pensando...";
+            btn.innerText = "Procesando...";
             result.classList.add('hidden');
             status.classList.remove('hidden', 'bg-red-100', 'text-red-700');
             status.classList.add('bg-blue-100', 'text-blue-700');
-            status.innerText = "Consultando base de datos. Por favor esperá...";
+            status.innerText = "Conectando con servidores Gemini 3.1...";
 
             try {
                 const genAI = new GoogleGenerativeAI(key);
-                // Motor confirmado que conecta
-                const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
                 
-                // Prompt optimizado de bajo consumo
+                // AQUÍ ESTÁ EL CAMBIO CLAVE: Exigido por Google para proyectos nuevos
+                const model = genAI.getGenerativeModel({ model: "gemini-3.1-flash" });
+                
                 const prompt = `Repuesto Honda: ${part}. 
                 Arma descripción Mercado Libre:
                 1. NOMBRE (MAYÚSCULAS)
@@ -100,13 +97,7 @@
             } catch (err) {
                 status.classList.remove('bg-blue-100', 'text-blue-700');
                 status.classList.add('bg-red-100', 'text-red-700');
-                
-                // Diagnóstico preciso del error
-                if(err.message.includes("429") || err.message.includes("quota")) {
-                    status.innerHTML = "🛑 <b>TU API KEY NO TIENE SALDO O LLEGÓ AL LÍMITE.</b><br>El código funciona, pero Google bloqueó la llave. Entrá a Google AI Studio y verificá que estés en el plan gratuito correcto o creá una API Key nueva desde otra cuenta de Gmail.";
-                } else {
-                    status.innerText = "Error de conexión: " + err.message;
-                }
+                status.innerText = "Error de conexión: " + err.message;
             } finally {
                 btn.disabled = false;
                 btn.innerText = "Generar";
@@ -117,7 +108,7 @@
             const out = document.getElementById("output");
             out.select();
             document.execCommand("copy");
-            alert("¡Copiado!");
+            alert("¡Copiado al portapapeles!");
         };
     </script>
 </body>
