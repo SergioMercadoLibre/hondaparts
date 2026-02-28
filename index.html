@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Honda Part Intel Pro | 2026 Edition</title>
+    <title>Honda Part Intel Pro | 2026 Stable</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script type="importmap">
       { "imports": { "@google/generative-ai": "https://esm.run/@google/generative-ai" } }
@@ -21,9 +21,9 @@
 
     <header class="honda-header p-6 shadow-2xl mb-8">
         <div class="max-w-4xl mx-auto flex justify-between items-center">
-            <div>
-                <h1 class="text-3xl font-bold tracking-tighter italic text-white uppercase text-left">Honda Part Intel Pro</h1>
-                <p class="text-[10px] font-bold text-red-100 tracking-[0.2em] uppercase opacity-80 text-left">Sistema Profesional de Repuestos 2026</p>
+            <div class="text-left">
+                <h1 class="text-3xl font-bold tracking-tighter italic text-white uppercase">Honda Part Intel Pro</h1>
+                <p class="text-[10px] font-bold text-red-100 tracking-[0.2em] uppercase opacity-80">Edición 2026 - Alta Estabilidad</p>
             </div>
             <button onclick="document.getElementById('config').classList.toggle('hidden')" class="bg-black/30 hover:bg-black/50 p-3 rounded-full transition">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
@@ -34,14 +34,14 @@
     <main class="max-w-4xl mx-auto px-4 text-left">
         <div id="config" class="hidden mb-6 p-6 glass rounded-3xl">
             <h3 class="text-sm font-bold text-red-400 mb-4 uppercase tracking-wider">Configuración de Seguridad API</h3>
-            <input type="password" id="apiKey" placeholder="Pegá tu API Key de Google acá" class="w-full bg-slate-900 border border-slate-700 p-3 rounded-xl text-white text-sm focus:border-red-500 outline-none">
+            <input type="password" id="apiKey" placeholder="Pegá tu API Key aquí" class="w-full bg-slate-900 border border-slate-700 p-3 rounded-xl text-white text-sm focus:border-red-500 outline-none">
             <button onclick="saveKey()" class="mt-3 w-full bg-slate-100 text-black font-bold p-3 rounded-xl text-xs hover:bg-white transition">GUARDAR CLAVE</button>
         </div>
 
         <div class="glass p-8 rounded-[2rem] shadow-inner">
             <div class="flex flex-col md:flex-row gap-4">
                 <div class="flex-1 text-left">
-                    <label class="block text-[10px] font-bold text-slate-400 mb-2 uppercase tracking-widest text-left">Código Original (Base o Completo)</label>
+                    <label class="block text-[10px] font-bold text-slate-400 mb-2 uppercase tracking-widest text-left">Código Original Honda</label>
                     <input type="text" id="partInput" placeholder="Ej: 51490-MN8" class="w-full bg-slate-900 border-2 border-slate-700 p-4 rounded-2xl text-2xl font-bold uppercase tracking-widest text-white focus:border-red-500 transition-all outline-none">
                 </div>
                 <div class="flex items-end">
@@ -70,7 +70,7 @@
         window.saveKey = () => {
             const key = document.getElementById('apiKey').value;
             localStorage.setItem('honda_pro_key', key);
-            alert("Clave guardada exitosamente.");
+            alert("Clave configurada.");
             document.getElementById('config').classList.add('hidden');
         };
 
@@ -78,8 +78,8 @@
             const key = localStorage.getItem('honda_pro_key');
             const part = document.getElementById('partInput').value.trim();
             
-            if(!key) return alert("Hacé clic en el engranaje de arriba y poné tu API Key primero.");
-            if(part.length < 5) return alert("Ingresá un código válido.");
+            if(!key) return alert("Primero configurá la API Key en el engranaje ⚙️ de arriba.");
+            if(part.length < 5) return alert("Por favor, ingresá un código válido.");
 
             const btn = document.getElementById('mainBtn');
             const loader = document.getElementById('loader');
@@ -92,30 +92,27 @@
 
             try {
                 const genAI = new GoogleGenerativeAI(key);
-                // MODELO CORREGIDO PARA 2026: gemini-2.0-flash
-                const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+                // Usamos el modelo con mayor cuota gratuita disponible hoy
+                const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
                 
-                const prompt = `Como experto en repuestos Honda, analiza: "${part}". 
-                Si es una base de 9 dígitos, identifica terminaciones y reemplazos oficiales.
-                Genera la descripción para Mercado Libre:
-                Línea 1: NOMBRE DEL ARTÍCULO (MAYÚSCULAS)
-                Línea 2: MODELOS LÍDERES (ARG/BRA/USA)
-                Línea 3: JUEGO DE... (DETALLE E IMPORTANCIA DE ORIGINALIDAD HONDA)
-                Línea 4: HONDA ORIGINAL
-                Línea 5 en adelante: Listado "PARA: [Modelo] AÑOS: [Rango]"
-                
-                Usa datos de manuales oficiales. Si aplica a otras marcas por medida, indícalo al final separado por guiones.`;
+                const prompt = `Actúa como un experto Ingeniero de Partes de Honda. Analiza el código: "${part}".
+                Busca terminaciones y reemplazos oficiales si es necesario.
+                Genera la descripción de Mercado Libre:
+                1. NOMBRE ARTÍCULO (MAYÚSCULAS)
+                2. MODELOS COMERCIALES (ARG/BRA/USA)
+                3. JUEGO DE... (DETALLE Y VALOR ORIGINAL HONDA)
+                4. HONDA ORIGINAL
+                5. Listado: PARA: [Modelo] AÑOS: [Rango]
+                Usa datos oficiales globales. Solo modelos 100% compatibles.`;
 
                 const res = await model.generateContent(prompt);
                 output.value = res.response.text();
                 result.classList.remove('hidden');
             } catch (err) {
                 if(err.message.includes("429")) {
-                    alert("Límite de velocidad. Esperá 1 minuto y probá de nuevo (límite del plan gratis).");
-                } else if(err.message.includes("404")) {
-                    alert("Error interno de Google (404). El servidor de IA está en mantenimiento. Probá en unos minutos.");
+                    alert("⚠️ LÍMITE DE VELOCIDAD: Google pide esperar 60 segundos por ser plan gratuito. Esperá un minuto y probá de nuevo.");
                 } else {
-                    alert("Error técnico: " + err.message);
+                    alert("Error Técnico: " + err.message);
                 }
             } finally {
                 btn.disabled = false;
