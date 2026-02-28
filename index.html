@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Honda Part Intel Pro | Professional Suite</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script type="importmap">
+      { "imports": { "@google/generative-ai": "https://esm.run/@google/generative-ai" } }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Oswald:wght@500;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background: #0f172a; color: #f8fafc; }
+        .honda-header { font-family: 'Oswald', sans-serif; background: linear-gradient(90deg, #b91c1c 0%, #ef4444 100%); }
+        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
+        .btn-honda { background: #e11d48; transition: all 0.3s ease; }
+        .btn-honda:hover { background: #fb7185; transform: translateY(-2px); box-shadow: 0 4px 15px rgba(225, 29, 72, 0.4); }
+    </style>
+</head>
+<body class="min-h-screen pb-10">
+
+    <header class="honda-header p-6 shadow-2xl mb-8">
+        <div class="max-w-4xl mx-auto flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-bold tracking-tighter italic text-white uppercase">Honda Part Intel Pro</h1>
+                <p class="text-[10px] font-bold text-red-100 tracking-[0.2em] uppercase opacity-80 text-left">Advanced AI Repuestos v3.0</p>
+            </div>
+            <button onclick="document.getElementById('config').classList.toggle('hidden')" class="bg-black/30 hover:bg-black/50 p-3 rounded-full transition">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+            </button>
+        </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto px-4">
+        <div id="config" class="hidden mb-6 p-6 glass rounded-3xl">
+            <h3 class="text-sm font-bold text-red-400 mb-4 uppercase tracking-wider">Configuración de Seguridad API</h3>
+            <input type="password" id="apiKey" placeholder="Tu API Key de Gemini" class="w-full bg-slate-900 border border-slate-700 p-3 rounded-xl text-white text-sm focus:border-red-500 outline-none">
+            <button onclick="saveKey()" class="mt-3 w-full bg-slate-100 text-black font-bold p-3 rounded-xl text-xs hover:bg-white transition">GUARDAR CLAVE</button>
+        </div>
+
+        <div class="glass p-8 rounded-[2rem] shadow-inner border-t border-white/10">
+            <div class="flex flex-col md:flex-row gap-4">
+                <div class="flex-1">
+                    <label class="block text-[10px] font-bold text-slate-400 mb-2 uppercase tracking-widest">Código Original (Mín. 9 dígitos)</label>
+                    <input type="text" id="partInput" placeholder="Ej: 51490-MN8" class="w-full bg-slate-900 border-2 border-slate-700 p-4 rounded-2xl text-2xl font-bold uppercase tracking-widest text-white focus:border-red-500 transition-all outline-none">
+                </div>
+                <div class="flex items-end">
+                    <button id="mainBtn" onclick="processPart()" class="btn-honda w-full md:w-auto px-10 py-5 rounded-2xl font-bold text-lg uppercase tracking-tighter italic">Analizar Repuesto</button>
+                </div>
+            </div>
+
+            <div id="loader" class="hidden mt-10 text-center">
+                <div class="inline-block w-12 h-12 border-4 border-red-500 border-t-transparent rounded-full animate-spin"></div>
+                <p class="text-xs font-bold text-slate-500 mt-4 uppercase tracking-[0.3em]">IA Analizando Compatibilidad Global...</p>
+            </div>
+
+            <div id="result" class="hidden mt-10 animate-in slide-in-from-bottom duration-500">
+                <div class="flex justify-between items-center mb-4">
+                    <span class="text-xs font-bold text-red-400 uppercase tracking-widest italic">Descripción Estandarizada Mercado Libre</span>
+                    <button onclick="copyText()" class="text-[10px] bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded-full font-bold uppercase transition">Copiar Todo</button>
+                </div>
+                <textarea id="output" rows="18" class="w-full bg-slate-900/50 border border-slate-700 p-6 rounded-3xl text-sm font-mono text-slate-300 leading-relaxed shadow-inner"></textarea>
+            </div>
+        </div>
+    </main>
+
+    <script type="module">
+        import { GoogleGenerativeAI } from "@google/generative-ai";
+
+        window.saveKey = () => {
+            const key = document.getElementById('apiKey').value;
+            localStorage.setItem('honda_pro_key', key);
+            alert("Clave configurada.");
+            document.getElementById('config').classList.add('hidden');
+        };
+
+        window.processPart = async () => {
+            const key = localStorage.getItem('honda_pro_key');
+            const part = document.getElementById('partInput').value.trim();
+            
+            if(!key) return alert("Configurá la API Key primero en el engranaje.");
+            if(part.length < 9) return alert("Ingresá al menos 9 dígitos para un análisis preciso.");
+
+            const btn = document.getElementById('mainBtn');
+            const loader = document.getElementById('loader');
+            const result = document.getElementById('result');
+            const output = document.getElementById('output');
+
+            btn.disabled = true;
+            loader.classList.remove('hidden');
+            result.classList.add('hidden');
+
+            try {
+                const genAI = new GoogleGenerativeAI(key);
+                const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+                
+                const prompt = `Actúa como un experto Ingeniero de Partes de Honda Motor Co.
+                Entrada: Código de pieza "${part}".
+                
+                TAREAS TÉCNICAS:
+                1. Si el código tiene 9 dígitos o es una base, busca todas las terminaciones comunes (ej: -003, -305, -MER-R61).
+                2. Identifica si existe un REEMPLAZO OFICIAL (Supersession). Si existe, unifica la información bajo el código más moderno pero mencionando el anterior.
+                3. Genera la descripción de Mercado Libre con este formato EXACTO:
+                
+                Línea 1: [NOMBRE DEL ARTÍCULO EN MAYÚSCULAS]
+                Línea 2: [MODELOS LÍDERES COMERCIALES EN ARG/BRA/USA SEPARADOS POR /]
+                Línea 3: [DETALLE DE LO QUE INCLUYE] - [DESTACAR QUE ES PIEZA ORIGINAL HONDA EN CAJA O BOLSA SELLADA]
+                Línea 4: HONDA ORIGINAL
+                
+                Listado de compatibilidad:
+                PARA: [Modelo]
+                AÑOS: [Rango]
+                (Repetir para cada modelo de Honda Global, USA, Europa, Brasil y Argentina)
+                
+                REGLA DE ORO: Solo modelos que lleven este código según manuales de despiece.
+                AL FINAL: Si es compatible con marcas como Kawasaki, Suzuki, BMW o Yamaha por medidas de fabricante (ej: Retenes Showa), indícalo debajo de una línea divisoria "--- COMPATIBILIDAD TÉCNICA OTRAS MARCAS ---".`;
+
+                const res = await model.generateContent(prompt);
+                output.value = res.response.text();
+                result.classList.remove('hidden');
+            } catch (err) {
+                if(err.message.includes("429")) {
+                    alert("Límite de Google alcanzado. Esperá 60 segundos y volvé a intentar. Es una restricción de la cuenta gratuita.");
+                } else {
+                    alert("Error: " + err.message);
+                }
+            } finally {
+                btn.disabled = false;
+                loader.classList.add('hidden');
+            }
+        };
+
+        window.copyText = () => {
+            const copyText = document.getElementById("output");
+            copyText.select();
+            document.execCommand("copy");
+            alert("Copiado al portapapeleas.");
+        };
+    </script>
+</body>
+</html>
