@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Honda Catalogador | Precisión Absoluta</title>
+    <title>Honda Catalogador | Modo Exhaustivo</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script type="importmap">
       { "imports": { "@google/generative-ai": "https://esm.run/@google/generative-ai" } }
@@ -11,25 +11,25 @@
 </head>
 <body class="bg-slate-100 p-4 md:p-8 font-sans">
 
-    <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-lg border-t-4 border-black overflow-hidden">
+    <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-2xl border-t-4 border-red-600 overflow-hidden">
         
-        <div class="bg-black text-white p-6">
+        <div class="bg-red-600 text-white p-6">
             <h1 class="text-3xl font-bold uppercase italic tracking-tighter">Honda Part Intel Pro</h1>
-            <p class="text-xs opacity-90 text-red-400 font-bold tracking-widest uppercase">Motor Analítico: Catálogo EPC Global Restringido</p>
+            <p class="text-xs opacity-90 text-white font-bold tracking-widest uppercase">Motor Comercial: Listados Exhaustivos y Tips de Venta</p>
         </div>
 
         <div class="p-6 space-y-6">
             
             <div class="bg-gray-50 p-4 rounded border border-gray-200">
                 <label class="block text-xs font-bold text-gray-500 mb-2 uppercase">1. Tu API Key:</label>
-                <input type="password" id="apiKey" placeholder="AIzaSy..." class="w-full p-2 border rounded focus:border-black outline-none text-sm font-mono">
+                <input type="password" id="apiKey" placeholder="AIzaSy..." class="w-full p-2 border rounded focus:border-red-600 outline-none text-sm font-mono">
             </div>
 
             <div>
                 <label class="block text-xs font-bold text-gray-500 mb-2 uppercase">2. Código Original Honda (Base 9 dígitos o completo):</label>
                 <div class="flex flex-col sm:flex-row gap-2">
-                    <input type="text" id="partInput" placeholder="Ej: 90087-KT7-000 o 51490-MN8" class="flex-1 p-4 border-2 border-gray-300 rounded text-xl font-bold uppercase focus:border-red-600 outline-none">
-                    <button id="mainBtn" onclick="procesar()" class="bg-red-600 text-white px-8 py-3 rounded font-bold uppercase hover:bg-red-700 transition disabled:bg-gray-400 shadow-md">
+                    <input type="text" id="partInput" placeholder="Ej: 51490-MN8 o 90087-KT7-000" class="flex-1 p-4 border-2 border-gray-300 rounded text-xl font-bold uppercase focus:border-red-600 outline-none">
+                    <button id="mainBtn" onclick="procesar()" class="bg-black text-white px-8 py-3 rounded font-bold uppercase hover:bg-gray-800 transition disabled:bg-gray-400 shadow-md">
                         Analizar Pieza
                     </button>
                 </div>
@@ -38,10 +38,10 @@
             <div id="statusBox" class="hidden p-4 rounded text-sm font-bold text-center"></div>
 
             <div id="resultBox" class="hidden animate-in fade-in duration-500">
-                <label class="block text-xs font-bold text-gray-500 mb-2 uppercase">Publicación y Ficha Técnica:</label>
-                <textarea id="output" rows="25" class="w-full p-5 bg-gray-50 border rounded font-mono text-sm outline-none shadow-inner leading-relaxed text-gray-800"></textarea>
-                <button onclick="copiar()" class="mt-4 w-full bg-blue-600 text-white py-4 rounded font-bold uppercase hover:bg-blue-700 transition shadow-lg flex justify-center items-center gap-2">
-                    📋 Copiar Formato ML
+                <label class="block text-xs font-bold text-gray-500 mb-2 uppercase">Publicación Profesional para ML:</label>
+                <textarea id="output" rows="30" class="w-full p-5 bg-gray-50 border rounded font-mono text-sm outline-none shadow-inner leading-relaxed text-gray-800"></textarea>
+                <button onclick="copiar()" class="mt-4 w-full bg-red-600 text-white py-4 rounded font-bold uppercase hover:bg-red-700 transition shadow-lg flex justify-center items-center gap-2">
+                    📋 Copiar Publicación Completa
                 </button>
             </div>
         </div>
@@ -81,51 +81,45 @@
                 const selectedModel = validModels.find(m => m.name.includes("flash")) || validModels[0];
                 const cleanModelName = selectedModel.name.replace('models/', '');
 
-                status.innerText = `Analizando EPC Global y cruzando datos de manuales para código ${part}...`;
+                status.innerText = `Buscando en catálogo global para ${part}. Extrayendo TODOS los modelos sin omitir...`;
 
                 const genAI = new GoogleGenerativeAI(key);
                 const model = genAI.getGenerativeModel({ model: cleanModelName });
                 
-                // PROMPT ULTRA-ESTRICTO PARA EVITAR ALUCINACIONES Y ASEGURAR FORMATO
-                const prompt = `Eres un experto técnico en catálogos de repuestos de Honda Motor Co. (EPC Global, USA, Europa, Brasil, Argentina).
-                REGLA DE ORO: NO INVENTES DATOS. NO ALUCINES. Si la pieza es un tapón de alternador de 30mm, no digas que es un tornillo. Si es un retén de 41mm, no digas que es de 39mm.
-                
-                Código ingresado por el usuario: "${part}"
+                const prompt = `Actúa como el experto número uno en repuestos Honda. Código a consultar: "${part}".
 
-                INSTRUCCIONES LÓGICAS OBLIGATORIAS:
-                1. Completar: Si el código tiene 9 dígitos, COMPLETA el código original oficial con su terminación.
-                2. Reemplazos: Busca si existe un reemplazo oficial / supersession.
-                3. Formato de Años: Los años DEBEN estar separados estrictamente por un guion (-) y NUNCA por comas (,). Ejemplo correcto: 2002-2015.
+                REGLAS ESTRICTAS DE EXTRACCIÓN Y FORMATO:
+                1. PRECISIÓN TÉCNICA: Verifica las medidas exactas y qué pieza es antes de escribir. (Ej: 90087-KT7-000 es un tapón de alternador de aluminio de 30mm, no un tornillo. 51490-MN8-305 es un retén de 41x54x11). NO ALUCINES.
+                2. CÓDIGO COMPLETO Y REEMPLAZOS: Si el usuario da 9 dígitos, completa la terminación original. Revisa si hay "Supersession" (Reemplazo oficial).
+                3. LISTADO EXHAUSTIVO: PROHIBIDO RESUMIR. Debes listar TODAS las motos (Global, USA, Europa, LATAM) que lleven la pieza.
+                4. FORMATO DE AÑOS: Los años deben ir SEPARADOS POR GUION (Ej: 2002-2015), NUNCA por comas.
 
-                GENERA LA SALIDA EXACTAMENTE CON ESTA ESTRUCTURA (No agregues introducciones ni saludos):
+                TU RESPUESTA DEBE SER EXACTAMENTE ESTA PLANTILLA, COMPLETANDO LOS DATOS:
 
                 [NOMBRE DEL ARTÍCULO EN MAYÚSCULAS]
                 [MODELOS MÁS COMERCIALES PARA ARGENTINA / BRASIL]
-                [QUÉ ES Y QUÉ INCLUYE] - [DESTACAR CALIDAD ORIGINAL HONDA]
+                [JUEGO DE... INDICAR QUÉ INCLUYE Y DESTACAR CALIDAD ORIGINAL HONDA]
                 HONDA ORIGINAL
 
-                --- CÓDIGO ORIGINAL HONDA ---
-                CÓDIGO: [Código Completo]
-                (Lista de motos que lo llevan por manual)
+                --- CÓDIGO Y REEMPLAZOS ---
+                CÓDIGO ORIGINAL: [Código completo de 10 u 11 dígitos]
+                REEMPLAZO OFICIAL: [Indicar el código si hay reemplazo, o "No registra reemplazo oficial"]
+
+                --- LISTADO DE APLICACIÓN (HONDA) ---
+                (Lista exhaustiva de TODAS las motos que lo usan por manual. Un modelo por bloque.)
                 PARA: [Modelo]
                 AÑOS: [Año]-[Año]
-                (Repetir formato PARA/AÑOS por cada moto)
-
-                --- REEMPLAZO OFICIAL HONDA ---
-                CÓDIGO: [Código de Reemplazo o "No posee reemplazo oficial"]
-                (Si posee reemplazo, lista las motos que lo llevan)
-                PARA: [Modelo]
+                
+                PARA: [Siguiente Modelo]
                 AÑOS: [Año]-[Año]
+                (Repetir hasta agotar todas las motos)
 
-                --- COMPATIBILIDADES FÍSICAS HONDA ---
-                (Otros códigos de Honda que sean la misma pieza física y sirvan como alternativa. Si no hay, pon "No registra".)
+                💡 TIPS DE VENTA PROFESIONAL (INSIGHT DE MERCADO)
+                [Agrega 2 o 3 tips de venta. Ejemplo: Nombres alternativos en USA como 'Honda 599', medidas exactas críticas como '41x54x11', o datos sobre la resistencia del repuesto aplicable a motos pesadas como Gold Wing].
 
-                --- COMPATIBILIDAD CON OTRAS MARCAS ---
-                (Si la pieza sirve para motos Yamaha, Kawasaki, Suzuki, BMW, etc.)
-                MARCA: [Marca]
-                CÓDIGO OEM: [Código de la otra marca]
-                PARA: [Modelo]
-                AÑOS: [Año]-[Año]`;
+                --- COMPATIBILIDAD CON OTRAS MARCAS (PUBLICACIÓN ALTERNATIVA) ---
+                (Indica si esta pieza sirve para otras marcas por tener idéntica medida o especificación física)
+                [Marca] [Modelo]: [Año]-[Año] (Código OEM: [Si lo sabes])`;
 
                 const res = await model.generateContent(prompt);
                 
