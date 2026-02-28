@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Honda Part Intel | Máxima Precisión</title>
+    <title>Honda Catalogador | Precisión Absoluta</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script type="importmap">
       { "imports": { "@google/generative-ai": "https://esm.run/@google/generative-ai" } }
@@ -15,7 +15,7 @@
         
         <div class="bg-black text-white p-6">
             <h1 class="text-3xl font-bold uppercase italic tracking-tighter">Honda Part Intel Pro</h1>
-            <p class="text-xs opacity-90 text-red-400 font-bold tracking-widest uppercase">Motor Analítico Completo Restaurado</p>
+            <p class="text-xs opacity-90 text-red-400 font-bold tracking-widest uppercase">Motor Analítico: Catálogo EPC Global Restringido</p>
         </div>
 
         <div class="p-6 space-y-6">
@@ -28,7 +28,7 @@
             <div>
                 <label class="block text-xs font-bold text-gray-500 mb-2 uppercase">2. Código Original Honda (Base 9 dígitos o completo):</label>
                 <div class="flex flex-col sm:flex-row gap-2">
-                    <input type="text" id="partInput" placeholder="Ej: 51490-MN8" class="flex-1 p-4 border-2 border-gray-300 rounded text-xl font-bold uppercase focus:border-red-600 outline-none">
+                    <input type="text" id="partInput" placeholder="Ej: 90087-KT7-000 o 51490-MN8" class="flex-1 p-4 border-2 border-gray-300 rounded text-xl font-bold uppercase focus:border-red-600 outline-none">
                     <button id="mainBtn" onclick="procesar()" class="bg-red-600 text-white px-8 py-3 rounded font-bold uppercase hover:bg-red-700 transition disabled:bg-gray-400 shadow-md">
                         Analizar Pieza
                     </button>
@@ -38,10 +38,10 @@
             <div id="statusBox" class="hidden p-4 rounded text-sm font-bold text-center"></div>
 
             <div id="resultBox" class="hidden animate-in fade-in duration-500">
-                <label class="block text-xs font-bold text-gray-500 mb-2 uppercase">Ficha Técnica y Publicación Generada:</label>
+                <label class="block text-xs font-bold text-gray-500 mb-2 uppercase">Publicación y Ficha Técnica:</label>
                 <textarea id="output" rows="25" class="w-full p-5 bg-gray-50 border rounded font-mono text-sm outline-none shadow-inner leading-relaxed text-gray-800"></textarea>
                 <button onclick="copiar()" class="mt-4 w-full bg-blue-600 text-white py-4 rounded font-bold uppercase hover:bg-blue-700 transition shadow-lg flex justify-center items-center gap-2">
-                    📋 Copiar Todo el Reporte
+                    📋 Copiar Formato ML
                 </button>
             </div>
         </div>
@@ -81,48 +81,51 @@
                 const selectedModel = validModels.find(m => m.name.includes("flash")) || validModels[0];
                 const cleanModelName = selectedModel.name.replace('models/', '');
 
-                status.innerText = `Motor ${cleanModelName} conectado. Analizando manuales de despiece globales... (Esto puede tomar unos segundos)`;
+                status.innerText = `Analizando EPC Global y cruzando datos de manuales para código ${part}...`;
 
                 const genAI = new GoogleGenerativeAI(key);
                 const model = genAI.getGenerativeModel({ model: cleanModelName });
                 
-                // EL PROMPT MAESTRO RESTAURADO
-                const prompt = `Actúa como un experto en catalogación de repuestos Honda para Mercado Libre Argentina.
-                Se ha ingresado el código (puede ser base o completo): "${part}".
+                // PROMPT ULTRA-ESTRICTO PARA EVITAR ALUCINACIONES Y ASEGURAR FORMATO
+                const prompt = `Eres un experto técnico en catálogos de repuestos de Honda Motor Co. (EPC Global, USA, Europa, Brasil, Argentina).
+                REGLA DE ORO: NO INVENTES DATOS. NO ALUCINES. Si la pieza es un tapón de alternador de 30mm, no digas que es un tornillo. Si es un retén de 41mm, no digas que es de 39mm.
+                
+                Código ingresado por el usuario: "${part}"
 
-                Genera un reporte estructurado EXACTAMENTE con estas secciones y en este orden:
+                INSTRUCCIONES LÓGICAS OBLIGATORIAS:
+                1. Completar: Si el código tiene 9 dígitos, COMPLETA el código original oficial con su terminación.
+                2. Reemplazos: Busca si existe un reemplazo oficial / supersession.
+                3. Formato de Años: Los años DEBEN estar separados estrictamente por un guion (-) y NUNCA por comas (,). Ejemplo correcto: 2002-2015.
 
-                --- ANÁLISIS DEL CÓDIGO ---
-                * Código Original Completo: (Completa los dígitos si faltan)
-                * Reemplazo Oficial (Supersession): (Indica el código nuevo si Honda lo actualizó, o "No registra" si no hay).
+                GENERA LA SALIDA EXACTAMENTE CON ESTA ESTRUCTURA (No agregues introducciones ni saludos):
 
-                --- PUBLICACIÓN PARA MERCADO LIBRE ---
-                (Respeta estrictamente este formato de 4 líneas)
-                NOMBRE DEL ARTÍCULO (MAYÚSCULAS)
-                MODELOS COMERCIALES MÁS POPULARES (ARGENTINA / BRASIL)
-                [Qué es y qué incluye] - DESTACAR CALIDAD ORIGINAL HONDA
+                [NOMBRE DEL ARTÍCULO EN MAYÚSCULAS]
+                [MODELOS MÁS COMERCIALES PARA ARGENTINA / BRASIL]
+                [QUÉ ES Y QUÉ INCLUYE] - [DESTACAR CALIDAD ORIGINAL HONDA]
                 HONDA ORIGINAL
 
-                --- MOTOS QUE LLEVAN EL CÓDIGO ORIGINAL (Según manual) ---
-                (Formato estricto)
+                --- CÓDIGO ORIGINAL HONDA ---
+                CÓDIGO: [Código Completo]
+                (Lista de motos que lo llevan por manual)
                 PARA: [Modelo]
-                AÑOS: [Rango]
-                (Listar todas las compatibles de manual)
+                AÑOS: [Año]-[Año]
+                (Repetir formato PARA/AÑOS por cada moto)
 
-                --- MOTOS QUE LLEVAN EL CÓDIGO DE REEMPLAZO (Si aplica) ---
-                (Formato estricto. Si no hay reemplazo, omitir esta sección)
+                --- REEMPLAZO OFICIAL HONDA ---
+                CÓDIGO: [Código de Reemplazo o "No posee reemplazo oficial"]
+                (Si posee reemplazo, lista las motos que lo llevan)
                 PARA: [Modelo]
-                AÑOS: [Rango]
+                AÑOS: [Año]-[Año]
 
                 --- COMPATIBILIDADES FÍSICAS HONDA ---
-                (Listar otros códigos de repuestos Honda que físicamente sirven como reemplazo alternativo para esta pieza, ej: retenes de otra moto con la misma medida).
+                (Otros códigos de Honda que sean la misma pieza física y sirvan como alternativa. Si no hay, pon "No registra".)
 
                 --- COMPATIBILIDAD CON OTRAS MARCAS ---
-                (Listar si esta pieza le sirve a motos Yamaha, Kawasaki, Suzuki, BMW, etc. Incluir el código OEM de la otra marca si es posible).
+                (Si la pieza sirve para motos Yamaha, Kawasaki, Suzuki, BMW, etc.)
                 MARCA: [Marca]
                 CÓDIGO OEM: [Código de la otra marca]
                 PARA: [Modelo]
-                AÑOS: [Rango]`;
+                AÑOS: [Año]-[Año]`;
 
                 const res = await model.generateContent(prompt);
                 
